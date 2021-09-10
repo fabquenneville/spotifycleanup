@@ -4,7 +4,6 @@
 '''
 
 def get_liked_songs(spotify, limit = 50):
-    count = limit
     results = spotify.current_user_saved_tracks(limit=limit)
     tracks  = results['items']
     print(len(tracks))
@@ -16,3 +15,16 @@ def get_liked_songs(spotify, limit = 50):
 
     print(f"Found {len(tracks)} results")
     return tracks
+
+def get_user_playlists(spotify, limit = 50):
+    results     = spotify.current_user_playlists(limit=limit)
+    playlists   = results['items']
+    print(len(playlists))
+    while results["next"]:
+        playlists.extend(spotify.next(results)['items'])
+        print(len(playlists))
+        if len(playlists) > 150:
+            break
+
+    print(f"Found {len(playlists)} results")
+    return playlists
