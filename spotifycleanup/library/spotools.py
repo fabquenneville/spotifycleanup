@@ -3,7 +3,7 @@
     These are various tools related to the spotify api used by spotifycleanup
 '''
 
-def get_liked_songs(spotify, limit = 50):
+def get_user_songs(spotify, limit = 50):
     results = spotify.current_user_saved_tracks(limit=limit)
     tracks  = results['items']
     print(len(tracks))
