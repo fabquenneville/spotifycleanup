@@ -21,7 +21,7 @@ def main():
 
     token = spotipy.util.prompt_for_user_token(
         username        = account,
-        scope           = "user-library-read playlist-read-private",
+        scope           = "user-library-read user-library-modify playlist-read-private",
         client_id       = config[account]["id"],
         client_secret   = config[account]["secret"],
         redirect_uri    = 'http://localhost:8888/'
@@ -29,20 +29,27 @@ def main():
 
     spotify = spotipy.Spotify(auth=token)
 
-    # Test1
-    # tracks = get_user_songs(spotify)
-    # for item in tracks:
-    #     print(f"{item['track']['id']}: {item['track']['name']} by {item['track']['album']['artists'][0]['name']}")
+    tracks = get_user_songs(spotify)
+    nbbefore = len(tracks)
+    albums = dict()
+    albums_data = dict()
+    toremove = list()
+    for item in tracks:
+        albums[item['track']['album']['id']] = albums.get(item['track']['album']['id'], 0) + 1
+    for id in albums:
+        albums_data[id] = spotify.album(id)
+    for item in tracks:
+        if albums[item['track']['album']['id']] > albums_data[id]['total_tracks'] / 2:
+            toremove.append(item['track']["id"])
 
-    # Test2
-    # result = spotify.search("Liked Songs", limit = 50, type = "playlist")
-    # print(result)
-
-    # Test3
-    playlists = get_user_playlists(spotify)
-    print(playlists)
-
-
+    print(f"There are {len(toremove)} songs to remove.")
+    minilist = list()
+    for song in toremove:
+        minilist.append(song)
+        if len(minilist) >= 20:
+            spotify.current_user_saved_tracks_delete(minilist)
+            minilist = list()
+    tracks = get_user_songs(spotify)
 
 if __name__ == '__main__':
     main()
